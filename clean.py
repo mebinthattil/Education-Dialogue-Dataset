@@ -18,6 +18,7 @@ def convert_to_chat_format(input_path, output_path):
                 "content": f"You are a teacher discussing the topic: {topic}. Be engaging and helpful."
             })
             sub_progress = 0
+            last_role = "system"
             for message in entry["conversation"]:
                 print(f"Done with {progress}.{sub_progress}") #Printing progress
                 # Map roles
@@ -28,16 +29,22 @@ def convert_to_chat_format(input_path, output_path):
                     new_role = "user"
                 else:
                     continue  
-
+                
+                if role == last_role:
+                    continue
                 
                 content = message["text"].strip().replace('\"\",', '').replace('\",', '').replace('"', '') #removing this random stuff
                 dialog.append({
                     "content":content,
                     "role": new_role
                 })
+                last_role = role
                 sub_progress += 1
 
             writer.write({"dialog": dialog})
             progress += 1
 
-#convert_to_chat_format("conversations_train1.json", "cleaned_conversations_train1.jsonl")
+#iterate and cleanup
+for number in range(1,6):
+    convert_to_chat_format(f"Source/conversations_train{number}.json", f"Cleaned/cleaned_conversations_train{number}.jsonl")
+    
